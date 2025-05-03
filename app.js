@@ -24,6 +24,7 @@ const activeGames = {};
  * Parse request body and verifies incoming requests using discord-interactions package
  */
 app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async function (req, res) {
+  
   // Interaction type and data
   const { id, type, data } = req.body;
 
@@ -187,3 +188,6 @@ app.post('/interactions', verifyKeyMiddleware(process.env.PUBLIC_KEY), async fun
 app.listen(PORT, () => {
   console.log('Listening on port', PORT);
 });
+
+
+
