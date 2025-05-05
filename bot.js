@@ -3,7 +3,7 @@ import 'dotenv/config';
 import { getRandomEmoji } from './utils.js';
 import { getShuffledOptions, getResult } from './game.js';
 
-export const client = new Client({
+const client = new Client({
     intents: [GatewayIntentBits.Guilds],
 });
 
