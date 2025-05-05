@@ -1,49 +1,43 @@
-import 'dotenv/config';
-import { getRPSChoices } from './game.js';
-import { capitalize, InstallGlobalCommands } from './utils.js';
+import { SlashCommandBuilder } from 'discord.js';
+import { getRPSChoices } from './game.js'; // Import the RPSChoices from game.js
+import { capitalize } from './utils.js';
 
-// Get the game choices from game.js
-function createCommandChoices() {
-  const choices = getRPSChoices();
-  const commandChoices = [];
+import { Client, GatewayIntentBits } from 'discord.js';
+const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
-  for (let choice of choices) {
-    commandChoices.push({
-      name: capitalize(choice),
-      value: choice.toLowerCase(),
-    });
+// Get all choices from game.js
+const RPS_CHOICES = getRPSChoices().map(choice => ({
+  name: capitalize(choice),
+  value: choice.toLowerCase()
+}));
+
+const TEST_COMMAND = new SlashCommandBuilder()
+  .setName('test')
+  .setDescription('Basic command');
+
+const CHALLENGE_COMMAND = new SlashCommandBuilder()
+  .setName('challenge')
+  .setDescription('Challenge to a match of rock paper scissors')
+  .addStringOption(option =>
+    option.setName('object')
+      .setDescription('Pick your object')
+      .setRequired(true)
+      .addChoices(...RPS_CHOICES) // Add all choices from game.js
+  );
+
+const commands = [TEST_COMMAND, CHALLENGE_COMMAND];
+
+// Register commands with Discord
+async function registerCommands() {
+  try {
+    await client.login(process.env.DISCORD_TOKEN);
+    await client.application.commands.set(commands);
+    console.log('✅ Commands registered successfully');
+    process.exit(0);
+  } catch (error) {
+    console.error('❌ Error registering commands:', error);
+    process.exit(1);
   }
-
-  return commandChoices;
 }
 
-// Simple test command
-const TEST_COMMAND = {
-  name: 'test',
-  description: 'Basic command',
-  type: 1,
-  integration_types: [0, 1],
-  contexts: [0, 1, 2],
-};
-
-// Command containing options
-const CHALLENGE_COMMAND = {
-  name: 'challenge',
-  description: 'Challenge to a match of rock paper scissors',
-  options: [
-    {
-      type: 3,
-      name: 'object',
-      description: 'Pick your object',
-      required: true,
-      choices: createCommandChoices(),
-    },
-  ],
-  type: 1,
-  integration_types: [0, 1],
-  contexts: [0, 2],
-};
-
-const ALL_COMMANDS = [TEST_COMMAND, CHALLENGE_COMMAND];
-
-InstallGlobalCommands(process.env.APP_ID, ALL_COMMANDS);
+registerCommands();
